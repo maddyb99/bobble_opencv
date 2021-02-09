@@ -40,3 +40,32 @@ int WebpManipulator::save_frames(const std::string& outputDir){
     return frameNumber;
 }
 
+int WebpManipulator::resize_frames(const std::string &outputDir) {
+    for(int frameNumber=0;frameNumber<frames.size();frameNumber++){
+        int dim=512;
+        std::string filePath = outputDir + std::to_string(frameNumber)+ ".jpg";
+        Mat img=imread(filePath, IMREAD_COLOR);
+        if(! img.data )                              // Check for invalid input
+        {
+            std::cout <<  "Could not open or find the image" <<frameNumber<< std::endl ;
+            return 0;
+        }
+        std::cout<<img.rows<<img.cols<<std::endl;
+        Scalar color = (255,255,255);
+        Mat newImg;
+        newImg.create(dim,dim,img.type());
+        newImg.setTo(Scalar::all(255));
+        std::cout<<"new\n";
+        try {
+            img.copyTo(newImg(Rect((dim-img.cols)/2, (dim-img.rows)/2, img.cols, img.rows)));
+        }
+        catch (Exception err){
+            std::cout<<"err";
+        }
+        std::cout<<"before write new\n";
+        filePath = outputDir + std::to_string(static_cast<long long>(frameNumber))+ "_resize.jpg";
+        imwrite(filePath,newImg);
+        std::cout<<std::endl<<img.empty();
+
+    }
+}

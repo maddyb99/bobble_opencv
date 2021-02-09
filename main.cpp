@@ -22,12 +22,12 @@ int main() {
 //        th.emplace_back(std::thread(&HeadApi::saveHead,&webpManipulator,i));
     }
     for (int i=0;i<numFrames;i++){
-
-        std::cout << webpManipulator.get_HeadUrls().at(i);
+        std::cout << webpManipulator.get_HeadUrls().at(i)<<std::endl;
         HeadApi::saveHead(&webpManipulator,i);
     }
+    std::cout<<"*****sizes*******\n";
+    webpManipulator.resize_frames("/home/maddyb/Downloads/booble/headFrames/");
+    std::cout<<"\n********end sizes*****\n";
 //        th2[i].join();
-
-
     return 0;
 }
