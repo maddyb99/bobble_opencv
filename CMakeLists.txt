@@ -10,7 +10,13 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIRS} )
 
+find_package (Threads)
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(JSONCPP jsoncpp)
+link_libraries(${JSONCPP_LIBRARIES})
+
 add_executable(bobble_opencv main.cpp head_api.cpp include/head_api.hpp webp_manip.cpp include/webp_manip.hpp)
 message(STATUS ${CURL_LIBS})
-target_link_libraries(bobble_opencv ${OpenCV_LIBS} CURL::libcurl)
+target_link_libraries(bobble_opencv ${OpenCV_LIBS} CURL::libcurl Threads::Threads ${JSONCPP_LIBRARIES})
 #target_link_libraries(bobble_opencv ${OpenCV_LIBS})
