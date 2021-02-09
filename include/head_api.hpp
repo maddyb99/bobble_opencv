@@ -9,16 +9,12 @@
 #include <json/writer.h>
 #include <json/value.h>
 #include <thread>
-
+#include "webp_manip.hpp"
 class HeadApi{
-    const char *gender;
-    const char *filePath;
-    const char *headUrl;
-    void getHead();
+//    void getHead();
 public:
-    HeadApi(const char* gender, const char* filePath);
-    std::thread spawnGetHead();
-    static void getHeadStatic(const char* gender, std::string filePath);
-    void saveHead();
+//    std::thread spawnGetHead();
+    static void getHeadStatic(const char* gender, std::string filePath,WebpManipulator* webpManipulator,int num);
+    static void saveHead(WebpManipulator* webpManipulator,int num);
 };
 #endif //BOBBLE_OPENCV_HEAD_API_HPP
