@@ -45,17 +45,12 @@ void HeadApi::getHeadStatic(const char* gender, std::string filePath,WebpManipul
     curl_easy_cleanup(curl);
 }
 
-size_t callbackfunction(void *ptr, size_t size, size_t nmemb, void* userdata)
+size_t write_data(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
-    FILE* stream = (FILE*)userdata;
-    if (!stream)
-    {
-        printf("!!! No stream\n");
-        return 0;
-    }
-
-    size_t written = fwrite((FILE*)ptr, size, nmemb, stream);
-    return written;
+    std::vector<uchar> *stream = (std::vector<uchar>*)userdata;
+    size_t count = size * nmemb;
+    stream->insert(stream->end(), ptr, ptr + count);
+    return count;
 }
 //std::thread HeadApi::spawnGetHead() {
 //    return std::thread(&HeadApi::getHead,this);
@@ -63,8 +58,7 @@ size_t callbackfunction(void *ptr, size_t size, size_t nmemb, void* userdata)
 void HeadApi::saveHead(WebpManipulator* webpManipulator,int num) {
     if(webpManipulator->get_HeadUrls().at(num).empty())
         return;
-    std::string fileName="/home/maddyb/Downloads/booble/headFrames/"+std::to_string(num)+".jpg";
-    FILE* fp = fopen(fileName.c_str(), "wb");
+    std::vector<uchar> stream;
     CURL *curl;
     CURLcode res;
     curl = curl_easy_init();
@@ -75,9 +69,10 @@ void HeadApi::saveHead(WebpManipulator* webpManipulator,int num) {
         curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
         struct curl_slist *headers = NULL;
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackfunction);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data); // pass the writefunction
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &stream);
         res = curl_easy_perform(curl);
     }
     curl_easy_cleanup(curl);
+    webpManipulator->update_frame(stream,num);
 }

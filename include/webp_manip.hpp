@@ -10,6 +10,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
+//#include<webp/>
 #include <map>
 #ifndef BOBBLE_OPENCV_WEBP_MANIP_HPP
 #define BOBBLE_OPENCV_WEBP_MANIP_HPP
@@ -21,6 +22,7 @@ public:
     void extract_frames(const std::string &videoFilePath);
     int save_frames(const std::string &outputDir);
     int resize_frames(const std::string &outputDir);
+    void update_frame(std::vector<uchar>stream,int num);
     std::map<int,std::string> get_HeadUrls(){return headUrls;};
     void set_HeadUrls(std::string headUrl, int num){this->headUrls.insert(std::pair<int, std::string>(num,headUrl));};
 };
