@@ -51,7 +51,6 @@ int WebpManipulator::resize_frames(const std::string &outputDir) {
             return 0;
         }
         std::cout<<img.rows<<img.cols<<std::endl;
-        Scalar color = (255,255,255);
         Mat newImg;
         newImg.create(dim,dim,img.type());
         newImg.setTo(Scalar::all(255));
@@ -102,10 +101,10 @@ void WebpManipulator::update_frame(std::vector<uchar>stream,int num){
 //}
 int WebpManipulator::encode_webp(const std::string &videoFilePath){
     std::cout<<videoFilePath<<std::endl;
-    int status,height,width,timestamp_ms=0;
-    FILE *out;
+    int status=1,height,width,timestamp_ms=0;
+//    FILE *out;
     WebPAnimEncoderOptions encoderOptions;
-    WebPAnimEncoder *encoder;
+    WebPAnimEncoder *encoder= nullptr;
     WebPConfig config;
     WebPData webp_data;
     WebPPicture pic;
@@ -123,17 +122,15 @@ int WebpManipulator::encode_webp(const std::string &videoFilePath){
     int err = WebPValidateConfig(&config);
     std::cout<<"setup config: "<<err<<std::endl;
 
-//    WebPPicture pic;
-//    if (!WebPPictureInit(&pic)) return 0;
     for(int i=0;i<frames.size();i++) {
         pic.height=frames[i].rows;
         pic.width=frames[i].cols;
         WebPPictureImportRGB(&pic, frames[i].data, frames[i].step);
-        if (encoder == NULL) {
+        if (encoder == nullptr) {
             width  = pic.width;
             height = pic.height;
             encoder = WebPAnimEncoderNew(width, height, &encoderOptions);
-            status = (encoder != NULL);
+            status = (encoder != nullptr);
             if (!status) {
                 fprintf(stderr, "Could not create WebPAnimEncoder object.\n");
             }
@@ -145,29 +142,21 @@ int WebpManipulator::encode_webp(const std::string &videoFilePath){
                 fprintf(stderr, "Error while adding frame #%d\n", i);
             }
         }
-//        pic.custom_ptr = out;
-//        pic.writer = MyWriter;
-//        std::cout << "about to encode\n";
-////    WebPWri
-//        int status=WebPEncode(&config, &pic);
-//        std::cout<<"\n status : "<<status;
-//        if(!status)
-//            std::cout<<"\n error: "<<pic.error_code<<std::endl;
         timestamp_ms+=100;
         WebPPictureFree(&pic);
     }
 
     status = status && WebPAnimEncoderAdd(encoder, NULL, timestamp_ms, NULL);
-    status =  WebPAnimEncoderAssemble(encoder, &webp_data);
+    status =  status && WebPAnimEncoderAssemble(encoder, &webp_data);
     WebPAnimEncoderDelete(encoder);
-    fopen(videoFilePath.c_str(),"wb");
-    fwrite(webp_data.bytes,webp_data.size,1,out);
+//    fopen(videoFilePath.c_str(),"wb");
+//    fwrite(webp_data.bytes,webp_data.size,1,out);
 //    MyWriter(webp_data.bytes,webp_data.size,out);
-    fclose(out);
+//    fclose(out);
 
-//    auto myfile = std::fstream("file.binary", std::ios::out | std::ios::binary);
-//    myfile.write((char*)&webp_data.bytes[0], webp_data.size);
-//    myfile.close();
+    auto myfile = std::fstream(videoFilePath, std::ios::out | std::ios::binary);
+    myfile.write((char*)&webp_data.bytes[0], webp_data.size);
+    myfile.close();
 
     WebPDataClear(&webp_data);
 }
