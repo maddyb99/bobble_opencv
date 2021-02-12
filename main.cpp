@@ -1,17 +1,27 @@
 #include "include/head_api.hpp"
 #include "include/webp_manip.hpp"
 #include<thread>
-int main() {
+int main(int argc, const char* argv[]) {
 //    std::vector<cv::Mat> frames;
-    std::string file="/home/maddyb/Downloads/booble/gif_1611561785696.mp4";
+    if(argc<2){
+        std::cout<<"Insufficient parameters";
+        exit(1);
+    }
+    std::string inputFile,outputFile="./temp/final.webp";
+    for(int i=1;i<argc;i++){
+        if(argv[i][0]=='-'){
+            if(!std::strcmp(argv[i],"-o"))
+                outputFile=argv[++i];
+        } else inputFile=argv[i];
+    }
     WebpManipulator webpManipulator=WebpManipulator();
-    webpManipulator.decode_webp(file);
-    int numFrames=webpManipulator.save_frames("/home/maddyb/Downloads/booble/frames/");
+    webpManipulator.decode_webp(inputFile);
+    int numFrames=webpManipulator.save_frames("./temp/frames/");
     std::cout<<numFrames<<std::endl;
     std::vector<std::thread> th,th2;
     std::string filePath;
     for (int i=0;i<numFrames;i++) {
-        filePath="/home/maddyb/Downloads/booble/frames/"+std::to_string(i)+".jpg";
+        filePath="./temp/frames/"+std::to_string(i)+".jpg";
 //        HeadApi headApi("male", filePath.c_str());
 //        headApi.getHead();
         th.emplace_back(&HeadApi::getHeadStatic,"male",filePath,&webpManipulator,i);
@@ -21,19 +31,13 @@ int main() {
         th[i].join();
         th2.emplace_back(HeadApi::saveHead,&webpManipulator,i);
     }
-//        th.emplace_back(std::thread(&HeadApi::saveHead,&webpManipulator,i));
-th.clear();
-//    for (int i=0;i<numFrames;i++){
-//        std::cout << webpManipulator.get_HeadUrls().at(i)<<std::endl;
-//        th.emplace_back(HeadApi::saveHead,&webpManipulator,i);
-//        HeadApi::saveHead(&webpManipulator,i);
-//    }
+    th.clear();
     for (int i=0;i<numFrames;i++)
         th2[i].join();
     std::cout<<"*****sizes*******\n";
-    webpManipulator.resize_frames("/home/maddyb/Downloads/booble/headFrames/");
+    webpManipulator.resize_frames();
     std::cout<<"\n********end sizes*****\n";
-    webpManipulator.encode_webp("/home/maddyb/Downloads/booble/headFrames/final.webp");
+    webpManipulator.encode_webp(outputFile);
 //        th2[i].join();
     return 0;
 }
