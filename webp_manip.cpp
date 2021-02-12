@@ -4,7 +4,7 @@
 
 #include "include/webp_manip.hpp"
 using namespace  cv;
-void WebpManipulator::extract_frames(const std::string &videoFilePath){
+void WebpManipulator::decode_webp(const std::string &videoFilePath){
     try{
         //open the video file
         VideoCapture cap(videoFilePath); // open the video file
@@ -64,6 +64,7 @@ int WebpManipulator::resize_frames(const std::string &outputDir) {
         }
         std::cout<<"before write new\n";
         std::string filePath = outputDir + std::to_string(static_cast<long long>(frameNumber))+ ".jpg";
+        frames[frameNumber]=newImg;
         imwrite(filePath,newImg);
         std::cout<<std::endl<<img.empty();
 
@@ -73,4 +74,100 @@ int WebpManipulator::resize_frames(const std::string &outputDir) {
 void WebpManipulator::update_frame(std::vector<uchar>stream,int num){
     Mat frame=imdecode(Mat(stream), 1);
     frames[num]=frame;
+}
+
+//static int MyWriter(const uint8_t* data, size_t data_size,
+//                    FILE *fp) {
+//    FILE* const out = fp;
+//    return  (fwrite(data, data_size, 1, out) == 1) ;
+//}
+
+//static int ReadImage(const char filename[], WebPPicture* const pic) {
+//    const uint8_t* data = NULL;
+//    size_t data_size = 0;
+//
+//    WebPImageReader reader;
+//    int ok;
+//#ifdef HAVE_WINCODEC_H
+//    // Try to decode the file using WIC falling back to the other readers for
+//  // e.g., WebP.
+//  ok = ReadPictureWithWIC(filename, pic, 1, NULL);
+//  if (ok) return 1;
+//#endif
+//    if (!ImgIoUtilReadFile(filename, &data, &data_size)) return 0;
+//    reader = WebPGuessImageReader(data, data_size);
+//    ok = reader(data, data_size, pic, 1, NULL);
+//    WebPFree((void*)data);
+//    return ok;
+//}
+int WebpManipulator::encode_webp(const std::string &videoFilePath){
+    std::cout<<videoFilePath<<std::endl;
+    int status,height,width,timestamp_ms=0;
+    FILE *out;
+    WebPAnimEncoderOptions encoderOptions;
+    WebPAnimEncoder *encoder;
+    WebPConfig config;
+    WebPData webp_data;
+    WebPPicture pic;
+    WebPDataInit(&webp_data);
+    if (!WebPAnimEncoderOptionsInit(&encoderOptions) ||
+        !WebPConfigInit(&config) ||
+        !WebPPictureInit(&pic)) {
+        fprintf(stderr, "Library version mismatch!\n");
+        status = 0;
+    }
+//    if (!WebPConfigPreset(&config, WEBP_PRESET_PHOTO,90)) return 0;   // version error
+    config.sns_strength = 90;
+    config.filter_sharpness = 6;
+    config.alpha_quality = 90;
+    int err = WebPValidateConfig(&config);
+    std::cout<<"setup config: "<<err<<std::endl;
+
+//    WebPPicture pic;
+//    if (!WebPPictureInit(&pic)) return 0;
+    for(int i=0;i<frames.size();i++) {
+        pic.height=frames[i].rows;
+        pic.width=frames[i].cols;
+        WebPPictureImportRGB(&pic, frames[i].data, frames[i].step);
+        if (encoder == NULL) {
+            width  = pic.width;
+            height = pic.height;
+            encoder = WebPAnimEncoderNew(width, height, &encoderOptions);
+            status = (encoder != NULL);
+            if (!status) {
+                fprintf(stderr, "Could not create WebPAnimEncoder object.\n");
+            }
+        }
+
+        if (status) {
+            status = WebPAnimEncoderAdd(encoder, &pic, timestamp_ms, &config);
+            if (!status) {
+                fprintf(stderr, "Error while adding frame #%d\n", i);
+            }
+        }
+//        pic.custom_ptr = out;
+//        pic.writer = MyWriter;
+//        std::cout << "about to encode\n";
+////    WebPWri
+//        int status=WebPEncode(&config, &pic);
+//        std::cout<<"\n status : "<<status;
+//        if(!status)
+//            std::cout<<"\n error: "<<pic.error_code<<std::endl;
+        timestamp_ms+=100;
+        WebPPictureFree(&pic);
+    }
+
+    status = status && WebPAnimEncoderAdd(encoder, NULL, timestamp_ms, NULL);
+    status =  WebPAnimEncoderAssemble(encoder, &webp_data);
+    WebPAnimEncoderDelete(encoder);
+    fopen(videoFilePath.c_str(),"wb");
+    fwrite(webp_data.bytes,webp_data.size,1,out);
+//    MyWriter(webp_data.bytes,webp_data.size,out);
+    fclose(out);
+
+//    auto myfile = std::fstream("file.binary", std::ios::out | std::ios::binary);
+//    myfile.write((char*)&webp_data.bytes[0], webp_data.size);
+//    myfile.close();
+
+    WebPDataClear(&webp_data);
 }

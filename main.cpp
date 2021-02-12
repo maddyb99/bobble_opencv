@@ -5,7 +5,7 @@ int main() {
 //    std::vector<cv::Mat> frames;
     std::string file="/home/maddyb/Downloads/booble/gif_1611561785696.mp4";
     WebpManipulator webpManipulator=WebpManipulator();
-    webpManipulator.extract_frames(file);
+    webpManipulator.decode_webp(file);
     int numFrames=webpManipulator.save_frames("/home/maddyb/Downloads/booble/frames/");
     std::cout<<numFrames<<std::endl;
     std::vector<std::thread> th,th2;
@@ -33,6 +33,7 @@ th.clear();
     std::cout<<"*****sizes*******\n";
     webpManipulator.resize_frames("/home/maddyb/Downloads/booble/headFrames/");
     std::cout<<"\n********end sizes*****\n";
+    webpManipulator.encode_webp("/home/maddyb/Downloads/booble/headFrames/final.webp");
 //        th2[i].join();
     return 0;
 }
