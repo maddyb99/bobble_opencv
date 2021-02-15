@@ -3,15 +3,17 @@
 #include<thread>
 int main(int argc, const char* argv[]) {
 //    std::vector<cv::Mat> frames;
-    if(argc<2){
+    if(argc<3){
         std::cout<<"Insufficient parameters";
         exit(1);
     }
-    std::string inputFile,outputFile="./temp/final.webp";
+    std::string inputFile,outputFile="./temp/final.webp",gender;
     for(int i=1;i<argc;i++){
         if(argv[i][0]=='-'){
             if(!std::strcmp(argv[i],"-o"))
                 outputFile=argv[++i];
+            else if(!std::strcmp(argv[i],"-g")||!std::strcmp(argv[i],"-gender"))
+                gender=argv[++i];
         } else inputFile=argv[i];
     }
     WebpManipulator webpManipulator=WebpManipulator();
@@ -24,7 +26,7 @@ int main(int argc, const char* argv[]) {
         filePath="./temp/frames/"+std::to_string(i)+".jpg";
 //        HeadApi headApi("male", filePath.c_str());
 //        headApi.getHead();
-        th.emplace_back(&HeadApi::getHeadStatic,"male",filePath,&webpManipulator,i);
+        th.emplace_back(&HeadApi::getHeadStatic,gender.c_str(),filePath,&webpManipulator,i);
 //        th[i].join();
     }
     for (int i=0;i<numFrames;i++) {

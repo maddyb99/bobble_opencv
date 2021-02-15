@@ -72,9 +72,9 @@ int WebpManipulator::resize_frames() {
 }
 
 void WebpManipulator::update_frame(std::vector<uchar>stream,int num){
-//    auto myfile = std::fstream("/home/maddyb/Downloads/booble/headFrames/"+std::to_string(num)+"_test.png", std::ios::out | std::ios::binary);
-//    myfile.write(reinterpret_cast<const char *>(stream.data()), stream.size());
-//    myfile.close();
+//    if(stream.empty()){
+//        frames.erase(frames.at(num));
+//    }
     Mat frame=imdecode(Mat(stream), IMREAD_UNCHANGED);
     frames[num]=frame;
 }
