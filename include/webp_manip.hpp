@@ -4,12 +4,10 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <opencv2/opencv_modules.hpp>
-#include <opencv2/opencv.hpp>
+#include <iostream>
 #include <opencv2/core.hpp>
 #include <opencv2/video.hpp>
 #include <opencv2/imgproc.hpp>
-#include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 #include <webp/encode.h>
 #include <webp/decode.h>

@@ -1,6 +1,6 @@
 #include "include/head_api.hpp"
 #include "include/webp_manip.hpp"
-#include<thread>
+#include <thread>
 int main(int argc, const char* argv[]) {
 //    std::vector<cv::Mat> frames;
 //    if(argc<3){

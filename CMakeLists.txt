@@ -2,7 +2,7 @@
 project(bobble_opencv)
 
 set(CMAKE_CXX_STANDARD 20)
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.10.2)
 
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
