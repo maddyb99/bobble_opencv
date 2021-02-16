@@ -8,7 +8,7 @@ find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 find_package(CURL REQUIRED)
-include_directories(${CURL_INCLUDE_DIRS} )
+include_directories(${CURL_INCLUDE_DIRS})
 
 find_package (Threads)
 
@@ -27,5 +27,5 @@ link_libraries(${JSONCPP_LIBRARIES})
 
 add_executable(bobble_opencv main.cpp head_api.cpp include/head_api.hpp webp_manip.cpp include/webp_manip.hpp)
 message(STATUS ${IMAGEIO})
-target_link_libraries(bobble_opencv ${OpenCV_LIBS} CURL::libcurl Threads::Threads ${JSONCPP_LIBRARIES} ${WEBP} ${WEBPMUX} ${IMAGEIO})
+target_link_libraries(bobble_opencv ${OpenCV_LIBS} CURL::libcurl Threads::Threads ${JSONCPP_LIBRARIES} ${WEBP} ${WEBPMUX})
 #target_link_libraries(bobble_opencv ${OpenCV_LIBS})

@@ -10,7 +10,6 @@ void WebpManipulator::decode_webp(const std::string &videoFilePath){
         VideoCapture cap(videoFilePath); // open the video file
         if(!cap.isOpened())  // check if we succeeded
             CV_Error(1, "Can not open Video file");
-
         //cap.get(CV_CAP_PROP_FRAME_COUNT) contains the number of frames in the video;
         for(int frameNum = 0; frameNum < cap.get(CAP_PROP_FRAME_COUNT);frameNum++)
         {
@@ -106,6 +105,8 @@ int WebpManipulator::encode_webp(const std::string &videoFilePath){
     std::cout<<"setup config: "<<err<<std::endl;
 
     for(int i=0;i<frames.size();i++) {
+        if(frames[i].channels()==3)
+            continue;
         pic.height=frames[i].rows;
         pic.width=frames[i].cols;
         WebPPictureImportBGRA(&pic, frames[i].data, frames[i].step);

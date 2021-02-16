@@ -3,11 +3,11 @@
 #include<thread>
 int main(int argc, const char* argv[]) {
 //    std::vector<cv::Mat> frames;
-    if(argc<3){
-        std::cout<<"Insufficient parameters";
-        exit(1);
-    }
-    std::string inputFile,outputFile="./temp/final.webp",gender;
+//    if(argc<3){
+//        std::cout<<"Insufficient parameters";
+//        exit(1);
+//    }
+    std::string inputFile="/home/maddyb/Downloads/booble/gif_1611561785696.mp4",outputFile="./temp/final.webp",gender="male";
     for(int i=1;i<argc;i++){
         if(argv[i][0]=='-'){
             if(!std::strcmp(argv[i],"-o"))
