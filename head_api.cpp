@@ -52,9 +52,11 @@ size_t write_data(char *ptr, size_t size, size_t nmemb, void *userdata)
     stream->insert(stream->end(), ptr, ptr + count);
     return count;
 }
+
 //std::thread HeadApi::spawnGetHead() {
 //    return std::thread(&HeadApi::getHead,this);
 //}
+
 void HeadApi::GetHead(WebpManipulator* webpManipulator, int num) {
     if(webpManipulator->get_head_urls().at(num).empty())
         return;

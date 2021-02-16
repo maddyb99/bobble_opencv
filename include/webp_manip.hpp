@@ -12,6 +12,7 @@
 #include <webp/encode.h>
 #include <webp/decode.h>
 #include <webp/mux.h>
+#include <webp/demux.h>
 //#include <image>
 //#include <webp/mux_types.h>
 //#include <webp/types.h>
