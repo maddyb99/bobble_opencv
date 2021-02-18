@@ -8,7 +8,7 @@ size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
     return size * nmemb;
 }
 
-void HeadApi::getHeadStatic(const char* gender, std::string filePath,WebpManipulator* webpManipulator,int num) {
+void HeadApi::GetHeadUrl(const char* gender, std::string filePath, WebpManipulator* webpManipulator, int num) {
     CURL *curl;
         CURLcode res;
     std::string readBuffer;
@@ -38,7 +38,7 @@ void HeadApi::getHeadStatic(const char* gender, std::string filePath,WebpManipul
         std::cout<<"Response: "<<readBuffer<<std::endl;
         jsonReader.parse(readBuffer,jsonData);
         std::cout<<"Json url: "<<jsonData["faceImageURL"].asString();
-        webpManipulator->set_HeadUrls(jsonData["faceImageURL"].asString(),num);
+        webpManipulator->set_head_urls(jsonData["faceImageURL"].asString(), num);
 //        HeadApi::headUrl=jsonData["faceImageURL"].asString().c_str();
         curl_mime_free(mime);
     }
@@ -55,8 +55,8 @@ size_t write_data(char *ptr, size_t size, size_t nmemb, void *userdata)
 //std::thread HeadApi::spawnGetHead() {
 //    return std::thread(&HeadApi::getHead,this);
 //}
-void HeadApi::saveHead(WebpManipulator* webpManipulator,int num) {
-    if(webpManipulator->get_HeadUrls().at(num).empty())
+void HeadApi::GetHead(WebpManipulator* webpManipulator, int num) {
+    if(webpManipulator->get_head_urls().at(num).empty())
         return;
     std::vector<uchar> stream;
     CURL *curl;
@@ -64,7 +64,7 @@ void HeadApi::saveHead(WebpManipulator* webpManipulator,int num) {
     curl = curl_easy_init();
     if(curl) {
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
-        curl_easy_setopt(curl, CURLOPT_URL, webpManipulator->get_HeadUrls().at(num).c_str());
+        curl_easy_setopt(curl, CURLOPT_URL, webpManipulator->get_head_urls().at(num).c_str());
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
         curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
         struct curl_slist *headers = NULL;
@@ -74,5 +74,5 @@ void HeadApi::saveHead(WebpManipulator* webpManipulator,int num) {
         res = curl_easy_perform(curl);
     }
     curl_easy_cleanup(curl);
-    webpManipulator->update_frame(stream,num);
+    webpManipulator->UpdateFrames(stream, num);
 }

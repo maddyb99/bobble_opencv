@@ -17,8 +17,8 @@ int main(int argc, const char* argv[]) {
         } else inputFile=argv[i];
     }
     WebpManipulator webpManipulator=WebpManipulator();
-    webpManipulator.decode_webp(inputFile);
-    int numFrames=webpManipulator.save_frames("./temp/frames/");
+    webpManipulator.DecodeWebP(inputFile);
+    int numFrames= webpManipulator.SaveFrames("./temp/frames/");
     std::cout<<numFrames<<std::endl;
     std::vector<std::thread> th,th2;
     std::string filePath;
@@ -26,20 +26,20 @@ int main(int argc, const char* argv[]) {
         filePath="./temp/frames/"+std::to_string(i)+".jpg";
 //        HeadApi headApi("male", filePath.c_str());
 //        headApi.getHead();
-        th.emplace_back(&HeadApi::getHeadStatic,gender.c_str(),filePath,&webpManipulator,i);
+        th.emplace_back(&HeadApi::GetHeadUrl, gender.c_str(), filePath, &webpManipulator, i);
 //        th[i].join();
     }
     for (int i=0;i<numFrames;i++) {
         th[i].join();
-        th2.emplace_back(HeadApi::saveHead,&webpManipulator,i);
+        th2.emplace_back(HeadApi::GetHead, &webpManipulator, i);
     }
     th.clear();
     for (int i=0;i<numFrames;i++)
         th2[i].join();
     std::cout<<"*****sizes*******\n";
-    webpManipulator.resize_frames();
+    webpManipulator.ResizeFrames();
     std::cout<<"\n********end sizes*****\n";
-    webpManipulator.encode_webp(outputFile);
+    webpManipulator.EncodeWebP(outputFile);
 //        th2[i].join();
     return 0;
 }

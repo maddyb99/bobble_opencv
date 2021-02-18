@@ -14,7 +14,7 @@ class HeadApi{
 //    void getHead();
 public:
 //    std::thread spawnGetHead();
-    static void getHeadStatic(const char* gender, std::string filePath,WebpManipulator* webpManipulator,int num);
-    static void saveHead(WebpManipulator* webpManipulator,int num);
+    static void GetHeadUrl(const char* gender, std::string filePath, WebpManipulator* webpManipulator, int num);
+    static void GetHead(WebpManipulator* webpManipulator, int num);
 };
 #endif //BOBBLE_OPENCV_HEAD_API_HPP

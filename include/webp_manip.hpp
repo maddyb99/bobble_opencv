@@ -20,15 +20,15 @@
 #define BOBBLE_OPENCV_WEBP_MANIP_HPP
 class WebpManipulator{
     std::vector<cv::Mat> frames;
-    std::map<int,std::string> headUrls;
+    std::map<int,std::string> head_urls;
 public:
     std::vector<cv::Mat> get_frames(){return frames;}
-    void decode_webp(const std::string &videoFilePath);
-    int save_frames(const std::string &outputDir);
-    int resize_frames();
-    void update_frame(std::vector<uchar>stream,int num);
-    int encode_webp(const std::string &videoFilePath);
-    std::map<int,std::string> get_HeadUrls(){return headUrls;};
-    void set_HeadUrls(std::string headUrl, int num){this->headUrls.insert(std::pair<int, std::string>(num,headUrl));};
+    void DecodeWebP(const std::string &videoFilePath);
+    int SaveFrames(const std::string &outputDir);
+    int ResizeFrames();
+    void UpdateFrames(std::vector<uchar>stream, int num);
+    int EncodeWebP(const std::string &video_file_path);
+    std::map<int,std::string> get_head_urls(){return head_urls;};
+    void set_head_urls(std::string head_url, int num){this->head_urls.insert(std::pair<int, std::string>(num, head_url));};
 };
 #endif //BOBBLE_OPENCV_WEBP_MANIP_HPP
