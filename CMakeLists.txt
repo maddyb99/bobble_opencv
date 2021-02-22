@@ -23,7 +23,7 @@ if (ANDROID_ABI)
             IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/prebuilt/${ANDROID_ABI}/libwebp.so)
     set_target_properties(webpmux PROPERTIES
             IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/prebuilt/${ANDROID_ABI}/libwebpmux.so)
-    add_library(bobble_opencv SHARED webp_manip.cpp)
+    add_library(bobble_opencv SHARED main_android.cpp webp_manip.cpp)
 
     find_library( # Sets the name of the path variable.
             log-lib
