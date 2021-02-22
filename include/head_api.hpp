@@ -6,9 +6,9 @@
 #include <string>
 #include <json/json.h>
 #include <curl/curl.h>
-#include <json/reader.h>
-#include <json/writer.h>
-#include <json/value.h>
+//#include <json/reader.h>
+//#include <json/writer.h>
+//#include <json/value.h>
 #include <thread>
 #include "webp_manip.hpp"
 class HeadApi{

@@ -191,6 +191,8 @@ T* allocSingletonNew() { return new(allocSingletonNewBuffer(sizeof(T))) T(); }
 *                     Structures and macros for integration with IPP                     *
 \****************************************************************************************/
 
+#define OPENCV_IPP_REDUCE_SIZE 1
+
 // Temporary disabled named IPP region. Accuracy
 #define IPP_DISABLE_PYRAMIDS_UP         1 // Different results
 #define IPP_DISABLE_PYRAMIDS_DOWN       1 // Different results
@@ -207,6 +209,8 @@ T* allocSingletonNew() { return new(allocSingletonNewBuffer(sizeof(T))) T(); }
 #define IPP_DISABLE_XYZ_RGB             1 // big accuracy difference
 #define IPP_DISABLE_HOUGH               1 // improper integration/results
 #define IPP_DISABLE_FILTER2D_BIG_MASK   1 // different results on masks > 7x7
+
+#define IPP_DISABLE_GAUSSIANBLUR_PARALLEL 1 // not supported (2017u2 / 2017u3)
 
 // Temporary disabled named IPP region. Performance
 #define IPP_DISABLE_PERF_COPYMAKE       1 // performance variations
@@ -648,15 +652,6 @@ typedef enum CvStatus
 }
 CvStatus;
 
-#ifdef HAVE_TEGRA_OPTIMIZATION
-namespace tegra {
-
-CV_EXPORTS bool useTegra();
-CV_EXPORTS void setUseTegra(bool flag);
-
-}
-#endif
-
 #ifdef ENABLE_INSTRUMENTATION
 namespace cv
 {
@@ -880,6 +875,18 @@ Passed subdirectories are used in LIFO order.
 @note Implementation is not thread-safe.
 */
 CV_EXPORTS void addDataSearchSubDirectory(const cv::String& subdir);
+
+/** @brief Retrieve location of OpenCV libraries or current executable
+ */
+CV_EXPORTS bool getBinLocation(std::string& dst);
+
+#if defined(_WIN32)
+/** @brief Retrieve location of OpenCV libraries or current executable
+
+@note WIN32 only
+ */
+CV_EXPORTS bool getBinLocation(std::wstring& dst);
+#endif
 
 //! @}
 

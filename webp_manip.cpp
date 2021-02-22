@@ -76,7 +76,7 @@ void WebpManipulator::DecodeWebP(const std::string &videoFilePath){
 
 int WebpManipulator::SaveFrames(const std::string& outputDir){
     std::vector<int> compression_params;
-    compression_params.push_back(IMWRITE_JPEG_QUALITY);
+    compression_params.push_back(1);
     compression_params.push_back(100);
     int frame_num;
     std::vector<Mat>::iterator frame;
@@ -119,7 +119,7 @@ int WebpManipulator::ResizeFrames() {
 }
 
 void WebpManipulator::UpdateFrames(std::vector<uchar>stream, int num){
-    Mat frame=imdecode(Mat(stream), IMREAD_UNCHANGED);
+    Mat frame=imdecode(Mat(stream), -1);
     frames[num]=frame;
 }
 
