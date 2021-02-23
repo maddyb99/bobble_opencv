@@ -22,7 +22,7 @@ Java_tech_maddybcorp_bobbleopencv_MainActivity_WebPObject(JNIEnv *env, jobject /
 //android_fo
     WebpManipulator webpManipulator=WebpManipulator();
     __android_log_print(ANDROID_LOG_DEBUG, "TRACKERS", "%s", ("PATH IN C++: "+newPath).c_str());
-//    webpManipulator.DecodeWebP(newPath);
+    webpManipulator.DecodeWebP(newPath);
 
     return reinterpret_cast<jlong>(&webpManipulator);
 };
