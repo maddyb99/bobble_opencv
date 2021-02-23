@@ -14,7 +14,7 @@
 //int register_BinaryDictionary(JNIEnv *env);
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_tech_maddybcorp_bobbleopencv_MainActivity_WebPObject(JNIEnv *env, jobject /*this*/, jstring path) {
+Java_tech_maddybcorp_bobbleopencv_MainActivity_WebPObject(JNIEnv *env, jobject /*this*/, jstring path, jstring cache_path) {
     const char *nativeString = env->GetStringUTFChars(path, 0);
 
     std::string newPath = std::string(nativeString);
@@ -23,6 +23,11 @@ Java_tech_maddybcorp_bobbleopencv_MainActivity_WebPObject(JNIEnv *env, jobject /
     WebpManipulator webpManipulator=WebpManipulator();
     __android_log_print(ANDROID_LOG_DEBUG, "TRACKERS", "%s", ("PATH IN C++: "+newPath).c_str());
     webpManipulator.DecodeWebP(newPath);
+
+    nativeString = env->GetStringUTFChars(cache_path, 0);
+    newPath = std::string(nativeString);
+    __android_log_print(ANDROID_LOG_DEBUG, "TRACKERS", "%s", ("CACHE PATH IN C++: "+newPath).c_str());
+    webpManipulator.SaveFrames(newPath);
 
     return reinterpret_cast<jlong>(&webpManipulator);
 };

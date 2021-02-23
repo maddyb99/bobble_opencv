@@ -16,6 +16,7 @@ if (ANDROID_ABI)
 
     add_library(webp SHARED IMPORTED)
     add_library(webpmux SHARED IMPORTED)
+    add_library(webpdemux SHARED IMPORTED)
     add_library( lib_opencv SHARED IMPORTED )
 
     set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_java4.so)
@@ -23,6 +24,8 @@ if (ANDROID_ABI)
             IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/prebuilt/${ANDROID_ABI}/libwebp.so)
     set_target_properties(webpmux PROPERTIES
             IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/prebuilt/${ANDROID_ABI}/libwebpmux.so)
+    set_target_properties(webpdemux PROPERTIES
+            IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/prebuilt/${ANDROID_ABI}/libwebpdemux.so)
     add_library(bobble_opencv SHARED main_android.cpp webp_manip.cpp)
 
     find_library( # Sets the name of the path variable.
@@ -35,7 +38,7 @@ if (ANDROID_ABI)
     find_package (Threads)
 
 #    add_executable(bobble_opencv main.cpp head_api.cpp include/head_api.hpp webp_manip.cpp include/webp_manip.hpp)
-    target_link_libraries(bobble_opencv ${log-lib} lib_opencv webp webpmux Threads::Threads)
+    target_link_libraries(bobble_opencv ${log-lib} lib_opencv webp webpmux webpdemux Threads::Threads)
 
 else()
     find_package( OpenCV REQUIRED )
