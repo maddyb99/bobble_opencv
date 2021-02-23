@@ -5,6 +5,7 @@
 #include <jni.h>
 #include <webp_manip.hpp>
 #include <android/log.h>
+//#include <android/asset_manager.h>
 
 //template <typename T, int N>
 //char (&ArraySizeHelper(T (&array)[N]))[N];
@@ -17,6 +18,8 @@ Java_tech_maddybcorp_bobbleopencv_MainActivity_WebPObject(JNIEnv *env, jobject /
     const char *nativeString = env->GetStringUTFChars(path, 0);
 
     std::string newPath = std::string(nativeString);
+//AAssetManager_open(mngr,newPath.c_str(),AASSET_MODE_BUFFER);
+//android_fo
     WebpManipulator webpManipulator=WebpManipulator();
     __android_log_print(ANDROID_LOG_DEBUG, "TRACKERS", "%s", ("PATH IN C++: "+newPath).c_str());
 //    webpManipulator.DecodeWebP(newPath);
