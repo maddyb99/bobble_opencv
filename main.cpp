@@ -7,7 +7,7 @@ int main(int argc, const char* argv[]) {
 //        std::cout<<"Insufficient parameters";
 //        exit(1);
 //    }
-    std::string inputFile="/home/Downloads/booble/gif_1611561785696.webp",outputFile="./temp/final.webp",gender="male";
+    std::string inputFile="/home/maddyb/Downloads/booble/gif_1611561785696.webp",outputFile="./temp/final.webp",gender="male";
     for(int i=1;i<argc;i++){
         if(argv[i][0]=='-'){
             if(!std::strcmp(argv[i],"-o"))

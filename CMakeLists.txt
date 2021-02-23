@@ -12,11 +12,11 @@ include_directories(${CURL_INCLUDE_DIRS})
 
 find_package (Threads)
 
-find_library(WEBP NAMES webp libwebp)
+find_library(WEBP NAMES libwebp)
 
-find_library(WEBPMUX NAMES webpmux libwebpmux)
+#find_library(WEBPMUX NAMES libwebpmux)
 
-find_library(WEBPDEMUX NAMES webpdemux libwebpdemux)
+find_library(WEBPDEMUX NAMES libwebpdemux.so)
 
 
 #find_library(IMAGEIO NAMES imageio)
@@ -30,5 +30,5 @@ link_libraries(${JSONCPP_LIBRARIES})
 add_executable(bobble_opencv main.cpp head_api.cpp include/head_api.hpp webp_manip.cpp include/webp_manip.hpp)
 
 message(STATUS ${WEBPDEMUX})
-target_link_libraries(bobble_opencv ${OpenCV_LIBS} CURL::libcurl Threads::Threads ${JSONCPP_LIBRARIES} ${WEBP} ${WEBPMUX} ${IMAGEIO})
+target_link_libraries(bobble_opencv ${OpenCV_LIBS} CURL::libcurl Threads::Threads ${JSONCPP_LIBRARIES} ${WEBP} ${WEBPMUX} ${IMAGEIO} /usr/lib/libwebpdemux.so)
 #target_link_libraries(bobble_opencv ${OpenCV_LIBS})

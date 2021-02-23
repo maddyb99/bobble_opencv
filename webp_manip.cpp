@@ -9,15 +9,16 @@ int readFile(const char* const file_name,
              WebPData *webp_data){
     uint8_t* file_data;
     size_t file_size;
-    FILE* in;
+    FILE* in=fopen(file_name,"rb");
     if (in == nullptr) {
-        std::cout<< "cannot open input file: "<< file_name;
+        std::cout<< "cannot open input file: "<< file_name<<std::endl;
         return 0;
     }
     fseek(in, 0, SEEK_END);
     file_size = ftell(in);
-    fseek(in, 0, SEEK_SET);
-    (fread(file_data, file_size, 1, in) == 1);
+    rewind(in);
+    file_data = (uint8_t *)malloc((file_size+1) * sizeof(uint8_t));
+    std::cout<<"DID READ: "<<(fread(file_data, file_size, 1, in) == 1);
     fclose(in);
     file_data[file_size] = '\0';  // convenient 0-terminator
     webp_data->bytes = file_data;
@@ -25,11 +26,12 @@ int readFile(const char* const file_name,
     return 1;
 }
 
-
 void WebpManipulator::DecodeWebP(const std::string &videoFilePath){
     WebPData webp_data;
     WebPDataInit(&webp_data);
-    WebPDemuxer* demux = WebPDemux(&webp_data);
+    WebPDemuxState state;
+    readFile(videoFilePath.c_str(),&webp_data);
+    WebPDemuxer* demux = WebPDemuxPartial(&webp_data,&state);
     WebPDecoderConfig config;
 //    uint32_t width = WebPDemuxGetI(demux, WEBP_FF_CANVAS_WIDTH);
 //    uint32_t height = WebPDemuxGetI(demux, WEBP_FF_CANVAS_HEIGHT);
@@ -37,14 +39,15 @@ void WebpManipulator::DecodeWebP(const std::string &videoFilePath){
     WebPIterator iter;
 
     try{
-        readFile(videoFilePath.c_str(),&webp_data);
         WebPInitDecoderConfig(&config);
 //        int err = WebPValidateConfig(&config);
         if (WebPDemuxGetFrame(demux, 1, &iter)) {
             do {
                 WebPDecode(iter.fragment.bytes, iter.fragment.size, &config);
-                frames.push_back(imdecode(Mat(config.output.height,config.output.height,CV_8UC3,config.output.private_memory), IMREAD_UNCHANGED));
-
+                Mat mat=Mat(config.output.height,config.output.height,CV_8UC3,config.output.private_memory);
+                cvtColor(mat,mat,COLOR_RGB2BGR);
+                frames.push_back(mat);
+                WebPInitDecoderConfig(&config);
                 // ... (Consume 'iter'; e.g. Decode 'iter.fragment' with WebPDecode(),
                 // ... and get other frame properties like width, height, offsets etc.
                 // ... see 'struct WebPIterator' below for more info).
@@ -107,7 +110,7 @@ int WebpManipulator::ResizeFrames() {
             std::cout<<"err";
         }
         std::cout<<"before write new\n";
-//        std::string filePath = outputDir + std::to_string(static_cast<long long>(frame_num))+ ".png";
+//        std::string filePath = "./temp/headFrames/" + std::to_string(static_cast<long long>(frame_num))+ ".png";
         frames[frame_num]=new_img;
 //        imwrite(filePath,img);
 //        std::cout<<std::endl<<img.empty();
