@@ -5,6 +5,7 @@
 #include <jni.h>
 #include <webp_manip.hpp>
 #include <android/log.h>
+#include <android/asset_manager.h>
 //#include <android/asset_manager.h>
 
 //template <typename T, int N>
@@ -14,22 +15,55 @@
 //int register_BinaryDictionary(JNIEnv *env);
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_tech_maddybcorp_bobbleopencv_MainActivity_WebPObject(JNIEnv *env, jobject /*this*/, jstring path, jstring cache_path) {
+Java_tech_maddybcorp_bobbleopencv_MainActivity_webPObjectInit(JNIEnv *env, jobject /*this*/, jstring path, jstring cache_path) {
     const char *nativeString = env->GetStringUTFChars(path, 0);
+
 
     std::string newPath = std::string(nativeString);
 //AAssetManager_open(mngr,newPath.c_str(),AASSET_MODE_BUFFER);
 //android_fo
-    WebpManipulator webpManipulator=WebpManipulator();
+    WebpManipulator *webpManipulator=new WebpManipulator();
     __android_log_print(ANDROID_LOG_DEBUG, "TRACKERS", "%s", ("PATH IN C++: "+newPath).c_str());
-    webpManipulator.DecodeWebP(newPath);
-
+    webpManipulator->DecodeWebP(newPath);
+    __android_log_print(ANDROID_LOG_DEBUG, "TRACKERS", "%s", ("Decoded frames: "+std::to_string(webpManipulator->get_frames().size())).c_str());
     nativeString = env->GetStringUTFChars(cache_path, 0);
     newPath = std::string(nativeString);
     __android_log_print(ANDROID_LOG_DEBUG, "TRACKERS", "%s", ("CACHE PATH IN C++: "+newPath).c_str());
-    webpManipulator.SaveFrames(newPath);
+    webpManipulator->SaveFrames(newPath);
+
+    return reinterpret_cast<jlong>(webpManipulator);
+};
+
+extern "C" JNIEXPORT jlong JNICALL
+Java_tech_maddybcorp_bobbleopencv_MainActivity_webPUpdateFrames(JNIEnv *env, jobject /*this*/, jstring frame, jint num, jlong decoder) {
+
+    const char *nativeString = env->GetStringUTFChars(frame, 0);
+    std::vector<uchar> newFrame;
+    for(int i=0;nativeString[i]!=NULL;i++)
+        newFrame.emplace_back(nativeString[i]);
+    WebpManipulator webpManipulator=*(reinterpret_cast<WebpManipulator*>(decoder));
+    webpManipulator.UpdateFrames(newFrame,num);
 
     return reinterpret_cast<jlong>(&webpManipulator);
+};
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_tech_maddybcorp_bobbleopencv_MainActivity_webPMergeFrames(JNIEnv *env, jobject /*this*/, jstring path, jlong decoder) {
+
+    __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", "START");
+    const char *nativeString = env->GetStringUTFChars(path, 0);
+    std::string newPath = std::string(nativeString)+ "/finalWebP.webp";
+    __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", ("NEW WebP Path: "+newPath).c_str());
+    WebpManipulator *webpManipulator= reinterpret_cast<WebpManipulator *>(decoder);
+    if(webpManipulator!=NULL) {
+        __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", "SUCCESS");
+        __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", ("IS DECODED: " +
+                                                                      std::to_string(
+                                                                              webpManipulator->get_frames().size())).c_str());
+        webpManipulator->EncodeWebP(newPath);
+        __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", ("Complete encoding: "+newPath).c_str());
+    }
+    return env->NewStringUTF(newPath.c_str());
 };
 
 //jint JNI_OnLoad(JavaVM *vm, void *reserved){

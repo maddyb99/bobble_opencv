@@ -3,23 +3,27 @@
 //
 
 #include "include/webp_manip.hpp"
+#include <fstream>
+
 using namespace  cv;
 
 int readFile(const char* const file_name,
              WebPData *webp_data){
     uint8_t* file_data;
     size_t file_size;
-    FILE* in=fopen(file_name,"rb");
-    if (in == nullptr) {
+    std::ifstream in;
+    in.open(file_name,std::ios::in|std::ios::binary);
+    if (!in.is_open()) {
         std::cout<< "cannot open input file: "<< file_name<<std::endl;
         return 0;
     }
-    fseek(in, 0, SEEK_END);
-    file_size = ftell(in);
-    rewind(in);
+    in.seekg(0,std::ios::end);
+    file_size = in.tellg();
+    in.seekg(0,std::ios::beg);
     file_data = (uint8_t *)malloc((file_size+1) * sizeof(uint8_t));
-    std::cout<<"DID READ: "<<(fread(file_data, file_size, 1, in) == 1);
-    fclose(in);
+    in.read(reinterpret_cast<char *>(file_data), file_size);
+//    std::cout<<"DID READ: "<<(in.read(reinterpret_cast<char *>(file_data), file_size) == 1);
+    in.close();
     file_data[file_size] = '\0';  // convenient 0-terminator
     webp_data->bytes = file_data;
     webp_data->size = file_size;
@@ -33,9 +37,6 @@ void WebpManipulator::DecodeWebP(const std::string &videoFilePath){
     readFile(videoFilePath.c_str(),&webp_data);
     WebPDemuxer* demux = WebPDemuxPartial(&webp_data,&state);
     WebPDecoderConfig config;
-//    uint32_t width = WebPDemuxGetI(demux, WEBP_FF_CANVAS_WIDTH);
-//    uint32_t height = WebPDemuxGetI(demux, WEBP_FF_CANVAS_HEIGHT);
-//    uint32_t flags = WebPDemuxGetI(demux, WEBP_FF_FORMAT_FLAGS);
     WebPIterator iter;
 
     try{
@@ -54,19 +55,6 @@ void WebpManipulator::DecodeWebP(const std::string &videoFilePath){
             } while (WebPDemuxNextFrame(&iter));
             WebPDemuxReleaseIterator(&iter);
         }
-
-//        VideoCapture cap(videoFilePath); // open the video file
-//        if(!cap.isOpened())  // check if we succeeded
-//            CV_Error(1, "Can not open Video file");
-//        //cap.get(CV_CAP_PROP_FRAME_COUNT) contains the number of frames in the video;
-//        for(int frameNum = 0; frameNum < cap.get(CAP_PROP_FRAME_COUNT);frameNum++)
-//        {
-//            std::cout<<frameNum;
-//            Mat frame;
-//            cap >> frame; // get the next frame from video
-////            cvtColor(frame,frame,COLOR_BGR2BGRA);
-//            frames.push_back(frame);
-//        }
     }
     catch( cv::Exception& e ){
         std::cerr <<"error:"<< e.msg << std::endl;
@@ -123,7 +111,7 @@ void WebpManipulator::UpdateFrames(std::vector<uchar>stream, int num){
     frames[num]=frame;
 }
 
-int WebpManipulator::EncodeWebP(const std::string &video_file_path){
+void WebpManipulator::EncodeWebP(const std::string &video_file_path){
     std::cout << video_file_path << std::endl;
     int status=1,height,width,timestamp_ms=0;
 //    FILE *out;
@@ -148,7 +136,6 @@ int WebpManipulator::EncodeWebP(const std::string &video_file_path){
 //    encoder_options.anim_params.bgcolor=0;
     int err = WebPValidateConfig(&config);
     std::cout<<"setup config: "<<err<<std::endl;
-
     for(int i=0;i<frames.size();i++) {
         if(frames[i].channels()==3)
             continue;
@@ -174,7 +161,6 @@ int WebpManipulator::EncodeWebP(const std::string &video_file_path){
         timestamp_ms+=100;
         WebPPictureFree(&pic);
     }
-
     status = status && WebPAnimEncoderAdd(encoder, NULL, timestamp_ms, NULL);
     status =  status && WebPAnimEncoderAssemble(encoder, &webp_data);
     WebPAnimEncoderDelete(encoder);

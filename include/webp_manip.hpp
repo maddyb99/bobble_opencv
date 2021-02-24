@@ -28,7 +28,7 @@ public:
     int SaveFrames(const std::string &outputDir);
     int ResizeFrames();
     void UpdateFrames(std::vector<uchar>stream, int num);
-    int EncodeWebP(const std::string &video_file_path);
+    void EncodeWebP(const std::string &video_file_path);
     std::map<int,std::string> get_head_urls(){return head_urls;};
     void set_head_urls(std::string head_url, int num){this->head_urls.insert(std::pair<int, std::string>(num, head_url));};
 };
