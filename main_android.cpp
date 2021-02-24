@@ -35,6 +35,14 @@ Java_tech_maddybcorp_bobbleopencv_MainActivity_webPObjectInit(JNIEnv *env, jobje
 };
 
 extern "C" JNIEXPORT jlong JNICALL
+Java_tech_maddybcorp_bobbleopencv_MainActivity_webPCountFrames(JNIEnv *env, jobject /*this*/, jlong decoder) {
+
+    WebpManipulator *webpManipulator= reinterpret_cast<WebpManipulator *>(decoder);
+
+    return webpManipulator->get_frames().size();
+};
+
+extern "C" JNIEXPORT jlong JNICALL
 Java_tech_maddybcorp_bobbleopencv_MainActivity_webPUpdateFrames(JNIEnv *env, jobject /*this*/, jstring frame, jint num, jlong decoder) {
 
     const char *nativeString = env->GetStringUTFChars(frame, 0);
