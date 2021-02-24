@@ -29,7 +29,7 @@ Java_tech_maddybcorp_bobbleopencv_MainActivity_webPObjectInit(JNIEnv *env, jobje
     nativeString = env->GetStringUTFChars(cache_path, 0);
     newPath = std::string(nativeString);
     __android_log_print(ANDROID_LOG_DEBUG, "TRACKERS", "%s", ("CACHE PATH IN C++: "+newPath).c_str());
-    webpManipulator->SaveFrames(newPath);
+    webpManipulator->SaveFrames(newPath+"/");
 
     return reinterpret_cast<jlong>(webpManipulator);
 };
@@ -52,7 +52,7 @@ Java_tech_maddybcorp_bobbleopencv_MainActivity_webPMergeFrames(JNIEnv *env, jobj
 
     __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", "START");
     const char *nativeString = env->GetStringUTFChars(path, 0);
-    std::string newPath = std::string(nativeString)+ "/finalWebP.webp";
+    std::string newPath = std::string(nativeString);
     __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", ("NEW WebP Path: "+newPath).c_str());
     WebpManipulator *webpManipulator= reinterpret_cast<WebpManipulator *>(decoder);
     if(webpManipulator!=NULL) {
@@ -60,6 +60,7 @@ Java_tech_maddybcorp_bobbleopencv_MainActivity_webPMergeFrames(JNIEnv *env, jobj
         __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", ("IS DECODED: " +
                                                                       std::to_string(
                                                                               webpManipulator->get_frames().size())).c_str());
+        newPath = std::string(nativeString)+ "/finalWebP.webp";
         webpManipulator->EncodeWebP(newPath);
         __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", ("Complete encoding: "+newPath).c_str());
     }
