@@ -1,46 +1,33 @@
-#include "include/head_api.hpp"
-#include "include/webp_manip.hpp"
+#include "include/head_api.h"
+#include "include/webp_manip.h"
 #include <thread>
 int main(int argc, const char* argv[]) {
-//    std::vector<cv::Mat> frames;
-//    if(argc<3){
-//        std::cout<<"Insufficient parameters";
-//        exit(1);
-//    }
-    std::string inputFile="/home/maddyb/Downloads/booble/gif_1611561785696.webp",outputFile="./temp/final.webp",gender="male";
+    std::string input_file="/home/maddyb/Downloads/booble/gif_1611561785696.webp",output_file="./temp/final.webp",gender="male";
     for(int i=1;i<argc;i++){
         if(argv[i][0]=='-'){
             if(!std::strcmp(argv[i],"-o"))
-                outputFile=argv[++i];
+                output_file=argv[++i];
             else if(!std::strcmp(argv[i],"-g")||!std::strcmp(argv[i],"-gender"))
                 gender=argv[++i];
-        } else inputFile=argv[i];
+        } else input_file=argv[i];
     }
-    WebpManipulator webpManipulator=WebpManipulator();
-    webpManipulator.DecodeWebP(inputFile);
-    int numFrames= webpManipulator.SaveFrames("./temp/frames/");
-    std::cout<<numFrames<<std::endl;
+    WebpManipulator webp_manipulator=WebpManipulator();
+    webp_manipulator.DecodeWebP(input_file);
+    int num_frames= webp_manipulator.SaveFrames("./temp/frames/");
+    std::cout << num_frames << std::endl;
     std::vector<std::thread> th,th2;
-    std::string filePath;
-    for (int i=0;i<numFrames;i++) {
-        filePath="./temp/frames/"+std::to_string(i)+".jpg";
-//        HeadApi headApi("male", filePath.c_str());
-//        headApi.getHead();
-        th.emplace_back(&HeadApi::GetHeadUrl, gender.c_str(), filePath, &webpManipulator, i);
-//        th[i].join();
-
+    std::string file_path;
+    for (int i=0; i < num_frames; i++) {
+        file_path= "./temp/frames/" + std::to_string(i) + ".jpg";
+        th.emplace_back(&HeadApi::GetHeadUrl, gender.c_str(), file_path, &webp_manipulator, i);
     }
-    for (int i=0;i<numFrames;i++) {
+    for (int i=0; i < num_frames; i++) {
         th[i].join();
-        th2.emplace_back(HeadApi::GetHead, &webpManipulator, i);
+        th2.emplace_back(HeadApi::GetHead, &webp_manipulator, i);
     }
     th.clear();
-    for (int i=0;i<numFrames;i++)
+    for (int i=0; i < num_frames; i++)
         th2[i].join();
-    std::cout<<"*****sizes*******\n";
-    webpManipulator.ResizeFrames();
-    std::cout<<"\n********end sizes*****\n";
-    webpManipulator.EncodeWebP(outputFile);
-//        th2[i].join();
+    webp_manipulator.EncodeWebP(output_file);
     return 0;
 }

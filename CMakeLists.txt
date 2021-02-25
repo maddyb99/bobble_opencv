@@ -62,7 +62,7 @@ else()
 
     #find_package(WEBP REQUIRED)
 
-    add_executable(bobble_opencv main.cpp head_api.cpp include/head_api.hpp webp_manip.cpp include/webp_manip.hpp)
+    add_executable(bobble_opencv main.cpp head_api.cpp include/head_api.h webp_manip.cpp include/webp_manip.h)
     message(STATUS ${IMAGEIO})
     target_link_libraries(bobble_opencv ${OpenCV_LIBS} CURL::libcurl Threads::Threads ${JSONCPP_LIBRARIES} ${WEBP} ${WEBPMUX} /usr/lib/libwebpdemux.so)
     #target_link_libraries(bobble_opencv ${OpenCV_LIBS})

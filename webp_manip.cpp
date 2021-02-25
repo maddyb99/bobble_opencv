@@ -2,12 +2,12 @@
 // Created by maddyb on 07/02/21.
 //
 
-#include "include/webp_manip.hpp"
+#include "include/webp_manip.h"
 #include <fstream>
 
 using namespace  cv;
 
-int readFile(const char* const file_name,
+int WebpManipulator::readFile(const char* const file_name,
              WebPData *webp_data){
     uint8_t* file_data;
     size_t file_size;
@@ -34,14 +34,12 @@ void WebpManipulator::DecodeWebP(const std::string &videoFilePath){
     WebPData webp_data;
     WebPDataInit(&webp_data);
     WebPDemuxState state;
-    readFile(videoFilePath.c_str(),&webp_data);
+    this->readFile(videoFilePath.c_str(),&webp_data);
     WebPDemuxer* demux = WebPDemuxPartial(&webp_data,&state);
     WebPDecoderConfig config;
     WebPIterator iter;
-
     try{
         WebPInitDecoderConfig(&config);
-//        int err = WebPValidateConfig(&config);
         if (WebPDemuxGetFrame(demux, 1, &iter)) {
             do {
                 WebPDecode(iter.fragment.bytes, iter.fragment.size, &config);
@@ -49,9 +47,6 @@ void WebpManipulator::DecodeWebP(const std::string &videoFilePath){
                 cvtColor(mat,mat,COLOR_RGB2BGR);
                 frames.push_back(mat);
                 WebPInitDecoderConfig(&config);
-                // ... (Consume 'iter'; e.g. Decode 'iter.fragment' with WebPDecode(),
-                // ... and get other frame properties like width, height, offsets etc.
-                // ... see 'struct WebPIterator' below for more info).
             } while (WebPDemuxNextFrame(&iter));
             WebPDemuxReleaseIterator(&iter);
         }
@@ -68,7 +63,6 @@ int WebpManipulator::SaveFrames(const std::string& outputDir){
     compression_params.push_back(100);
     int frame_num;
     std::vector<Mat>::iterator frame;
-
     for(frame = frames.begin(), frame_num=0; frame != frames.end(); ++frame,++frame_num){
         std::string filePath = outputDir + std::to_string(static_cast<long long>(frame_num)) + ".jpg";
         imwrite(filePath,*frame,compression_params);
@@ -79,7 +73,6 @@ int WebpManipulator::SaveFrames(const std::string& outputDir){
 void WebpManipulator::ResizeFrames() {
     for(int frame_num=0; frame_num < frames.size(); frame_num++){
         int dim=512;
-//        std::string filePath = outputDir + std::to_string(frame_num)+ ".jpg";
         Mat img=frames[frame_num];
         if(! img.data )                              // Check for invalid input
         {
@@ -98,11 +91,7 @@ void WebpManipulator::ResizeFrames() {
             std::cout<<"err";
         }
         std::cout<<"before write new\n";
-//        std::string filePath = "./temp/headFrames/" + std::to_string(static_cast<long long>(frame_num))+ ".png";
         frames[frame_num]=new_img;
-//        imwrite(filePath,img);
-//        std::cout<<std::endl<<img.empty();
-
     }
 }
 
@@ -115,6 +104,7 @@ void WebpManipulator::EncodeWebP(const std::string &video_file_path){
     std::cout << video_file_path << std::endl;
     int status=1,height,width,timestamp_ms=0;
 //    FILE *out;
+    this->ResizeFrames();
     WebPAnimEncoderOptions encoder_options;
     WebPAnimEncoder *encoder= nullptr;
     WebPConfig config;
@@ -127,13 +117,9 @@ void WebpManipulator::EncodeWebP(const std::string &video_file_path){
         fprintf(stderr, "Library version mismatch!\n");
         status = 0;
     }
-//    if (!WebPConfigPreset(&config, WEBP_PRESET_PHOTO,90)) return 0;   // version error
     config.sns_strength = 90;
     config.filter_sharpness = 6;
     config.alpha_quality = 90;
-//    config.lossless=1;
-//    encoder_options.allow_mixed=0;
-//    encoder_options.anim_params.bgcolor=0;
     int err = WebPValidateConfig(&config);
     std::cout<<"setup config: "<<err<<std::endl;
     for(int i=0;i<frames.size();i++) {

@@ -1,7 +1,6 @@
-#include "include/head_api.hpp"
-#include <iostream>
+#include "include/head_api.h"
 
-size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
+size_t HeadApi::WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
 {
     ((std::string*)userp)->append((char*)contents, size * nmemb);
     return size * nmemb;
@@ -30,31 +29,25 @@ void HeadApi::GetHeadUrl(const char* gender, std::string filePath, WebpManipulat
         curl_mime_name(part, "image");
         curl_mime_filedata(part, filePath.c_str());
         curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, HeadApi::WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-//            curl_easy_setopt(curl, CURLOPT_WRITEINFO,)
         res = curl_easy_perform(curl);
         std::cout<<"Response: "<<readBuffer<<std::endl;
         jsonReader.parse(readBuffer,jsonData);
         std::cout<<"Json url: "<<jsonData["faceImageURL"].asString();
         webpManipulator->set_head_urls(jsonData["faceImageURL"].asString(), num);
-//        HeadApi::headUrl=jsonData["faceImageURL"].asString().c_str();
         curl_mime_free(mime);
     }
     curl_easy_cleanup(curl);
 }
 
-size_t write_data(char *ptr, size_t size, size_t nmemb, void *userdata)
+size_t HeadApi::write_data(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
     std::vector<uchar> *stream = (std::vector<uchar>*)userdata;
     size_t count = size * nmemb;
     stream->insert(stream->end(), ptr, ptr + count);
     return count;
 }
-
-//std::thread HeadApi::spawnGetHead() {
-//    return std::thread(&HeadApi::getHead,this);
-//}
 
 void HeadApi::GetHead(WebpManipulator* webpManipulator, int num) {
     if(webpManipulator->get_head_urls().at(num).empty())
@@ -70,7 +63,7 @@ void HeadApi::GetHead(WebpManipulator* webpManipulator, int num) {
         curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
         struct curl_slist *headers = NULL;
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data); // pass the writefunction
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, HeadApi::write_data); // pass the writefunction
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &stream);
         res = curl_easy_perform(curl);
     }
