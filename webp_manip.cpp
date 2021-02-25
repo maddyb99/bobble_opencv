@@ -76,7 +76,7 @@ int WebpManipulator::SaveFrames(const std::string& outputDir){
     return frame_num;
 }
 
-int WebpManipulator::ResizeFrames() {
+void WebpManipulator::ResizeFrames() {
     for(int frame_num=0; frame_num < frames.size(); frame_num++){
         int dim=512;
 //        std::string filePath = outputDir + std::to_string(frame_num)+ ".jpg";
@@ -84,7 +84,7 @@ int WebpManipulator::ResizeFrames() {
         if(! img.data )                              // Check for invalid input
         {
             std::cout << "Could not open or find the image" << frame_num << std::endl ;
-            return 0;
+            return;
         }
         std::cout<<img.rows<<img.cols<<std::endl;
         Mat new_img;

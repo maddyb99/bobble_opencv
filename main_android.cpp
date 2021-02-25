@@ -43,16 +43,21 @@ Java_tech_maddybcorp_bobbleopencv_MainActivity_webPCountFrames(JNIEnv *env, jobj
 };
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_tech_maddybcorp_bobbleopencv_MainActivity_webPUpdateFrames(JNIEnv *env, jobject /*this*/, jstring frame, jint num, jlong decoder) {
+Java_tech_maddybcorp_bobbleopencv_MainActivity_webPUpdateFrames(JNIEnv *env, jobject /*this*/, jbyteArray frame, jint num, jlong decoder) {
 
-    const char *nativeString = env->GetStringUTFChars(frame, 0);
-    std::vector<uchar> newFrame;
-    for(int i=0;nativeString[i]!=NULL;i++)
-        newFrame.emplace_back(nativeString[i]);
-    WebpManipulator webpManipulator=*(reinterpret_cast<WebpManipulator*>(decoder));
-    webpManipulator.UpdateFrames(newFrame,num);
+    __android_log_print(ANDROID_LOG_DEBUG, "UPDATE FRAMES", "%s", "START");
 
-    return reinterpret_cast<jlong>(&webpManipulator);
+    int len = env->GetArrayLength (frame);
+    unsigned char* buf = new unsigned char[len];
+    env->GetByteArrayRegion (frame, 0, len, reinterpret_cast<jbyte*>(buf));
+    std::vector<uchar> newFrame(buf,buf+len);
+    __android_log_print(ANDROID_LOG_DEBUG, "UPDATE FRAMES", "%s", "cast frames");
+    WebpManipulator *webpManipulator= reinterpret_cast<WebpManipulator *>(decoder);
+    webpManipulator->UpdateFrames(newFrame,num);
+
+    __android_log_print(ANDROID_LOG_DEBUG, "UPDATE FRAMES", "%s", ("new frame num rows"+std::to_string(webpManipulator->get_frames()[num].rows)).c_str());
+
+    return reinterpret_cast<jlong>(webpManipulator);
 };
 
 extern "C" JNIEXPORT jstring JNICALL
@@ -64,10 +69,12 @@ Java_tech_maddybcorp_bobbleopencv_MainActivity_webPMergeFrames(JNIEnv *env, jobj
     __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", ("NEW WebP Path: "+newPath).c_str());
     WebpManipulator *webpManipulator= reinterpret_cast<WebpManipulator *>(decoder);
     if(webpManipulator!=NULL) {
+        webpManipulator->ResizeFrames();
         __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", "SUCCESS");
         __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", ("IS DECODED: " +
                                                                       std::to_string(
                                                                               webpManipulator->get_frames().size())).c_str());
+//        webpManipulator->SaveFrames(newPath+"/temp/");
         newPath = std::string(nativeString)+ "/finalWebP.webp";
         webpManipulator->EncodeWebP(newPath);
         __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", ("Complete encoding: "+newPath).c_str());

@@ -26,7 +26,7 @@ public:
     std::vector<cv::Mat> get_frames(){return frames;}
     void DecodeWebP(const std::string &videoFilePath);
     int SaveFrames(const std::string &outputDir);
-    int ResizeFrames();
+    void ResizeFrames();
     void UpdateFrames(std::vector<uchar>stream, int num);
     void EncodeWebP(const std::string &video_file_path);
     std::map<int,std::string> get_head_urls(){return head_urls;};
