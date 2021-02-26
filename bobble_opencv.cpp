@@ -60,7 +60,6 @@ Java_tech_maddybcorp_bobbleopencv_MainActivity_webPMergeFrames(JNIEnv *env, jobj
     __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", ("NEW WebP Path: "+newPath).c_str());
     WebpManipulator *webpManipulator= reinterpret_cast<WebpManipulator *>(decoder);
     if(webpManipulator!=NULL) {
-        webpManipulator->ResizeFrames();
         __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", "SUCCESS");
         __android_log_print(ANDROID_LOG_DEBUG, "MERGE FRAMES", "%s", ("IS DECODED: " +
                                                                       std::to_string(
