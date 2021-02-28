@@ -4,4 +4,4 @@ This program demonstrates extraction of a Face from a webp and creating a new on
 
 ## Control Flow
 
-![Control Flow](https://github.com/maddyb99/bobble_opencv/blob/master/pictures/control_flow.png?raw=true)
+![Control Flow](https://github.com/maddyb99/bobble_opencv/blob/master/pictures/control_flow.jpeg?raw=true)
