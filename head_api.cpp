@@ -32,9 +32,9 @@ void HeadApi::GetHeadUrl(const char* gender, std::string filePath, WebpManipulat
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, HeadApi::WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
         res = curl_easy_perform(curl);
-        std::cout<<"Response: "<<readBuffer<<std::endl;
+        std::cout<<"Response: "<<num<<": "<<readBuffer<<std::endl;
         jsonReader.parse(readBuffer,jsonData);
-        std::cout<<"Json url: "<<jsonData["faceImageURL"].asString();
+        std::cout<<"Json url: "<<jsonData["faceImageURL"].asString()<<std::endl;
         webpManipulator->set_head_urls(jsonData["faceImageURL"].asString(), num);
         curl_mime_free(mime);
     }

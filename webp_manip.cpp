@@ -105,55 +105,63 @@ void WebpManipulator::EncodeWebP(const std::string &video_file_path){
     int status=1,height,width,timestamp_ms=0;
 //    FILE *out;
     this->ResizeFrames();
-    WebPAnimEncoderOptions encoder_options;
-    WebPAnimEncoder *encoder= nullptr;
-    WebPConfig config;
-    WebPData webp_data;
+
+    WebPMux *mux=WebPMuxNew();
+    WebPData chunk_data,webp_data;
     WebPPicture pic;
-    WebPDataInit(&webp_data);
-    if (!WebPAnimEncoderOptionsInit(&encoder_options) ||
-        !WebPConfigInit(&config) ||
-        !WebPPictureInit(&pic)) {
-        fprintf(stderr, "Library version mismatch!\n");
-        status = 0;
+    WebPDataInit(&chunk_data);
+    WebPMuxError error;
+
+    this->readFile("/home/maddyb/Documents/PROJECTS/C++/bobble_opencv/cmake-build-debug/temp/exif_data",&chunk_data);
+    if(mux == NULL) {
+        std::cout<< "Unable to allocate new WebPMux";
+        return;
     }
-    config.sns_strength = 90;
-    config.filter_sharpness = 6;
-    config.alpha_quality = 90;
-    int err = WebPValidateConfig(&config);
-    std::cout<<"setup config: "<<err<<std::endl;
+
+
+    std::cout<<"setup config: "<<status<<std::endl;
+
     for(int i=0;i<frames.size();i++) {
         if(frames[i].channels()==3)
             continue;
-        pic.height=frames[i].rows;
-        pic.width=frames[i].cols;
-        WebPPictureImportBGRA(&pic, frames[i].data, frames[i].step);
-        if (encoder == nullptr) {
-            width  = pic.width;
-            height = pic.height;
-            encoder = WebPAnimEncoderNew(width, height, &encoder_options);
-            status = (encoder != nullptr);
-            if (!status) {
-                fprintf(stderr, "Could not create WebPAnimEncoder object.\n");
-            }
-        }
 
-        if (status) {
-            status = WebPAnimEncoderAdd(encoder, &pic, timestamp_ms, &config);
-            if (!status) {
-                fprintf(stderr, "Error while adding frame #%d\n", i);
-            }
+        WebPDataInit(&webp_data);
+
+        uint8_t *compressedData;
+        WebPMuxFrameInfo info;
+
+        webp_data.size=WebPEncodeBGR(frames[i].data, frames[i].rows, frames[i].cols, frames[i].step, 90, &compressedData);
+        webp_data.bytes = compressedData;
+        info.bitstream = webp_data;
+        info.blend_method = WEBP_MUX_NO_BLEND;
+        info.dispose_method = WEBP_MUX_DISPOSE_NONE;
+        info.id = WEBP_CHUNK_ANMF;
+        info.duration = timestamp_ms;
+        info.x_offset = 0;
+        info.y_offset = 0;
+        status = WebPMuxPushFrame(mux,&info, 1);
+        if (!status) {
+            std::cout<<"Error while adding frame #"<<i;
         }
-        timestamp_ms+=100;
-        WebPPictureFree(&pic);
+        WebPDataClear(&webp_data);
     }
-    status = status && WebPAnimEncoderAdd(encoder, NULL, timestamp_ms, NULL);
-    status =  status && WebPAnimEncoderAssemble(encoder, &webp_data);
-    WebPAnimEncoderDelete(encoder);
+
+    WebPDataInit(&webp_data);
+    WebPMuxAnimParams params;
+    params.bgcolor = 0xFFFFFFFF;
+    params.loop_count = 0;
+
+    status = status && WebPMuxSetAnimationParams(mux, &params);
+    status = status && WebPMuxAssemble(mux, &webp_data);
+
+    std::cout<<"MUX create "<<mux<<std::endl<<"Chunk data: "<<chunk_data.size<<std::endl;
+    error=WebPMuxSetChunk(mux,"XMP ",&chunk_data,1);
+    std::cout<<"EXIF ERROR "<<error;
+    WebPMuxAssemble(mux, &webp_data);
 
     auto file = std::fstream(video_file_path, std::ios::out | std::ios::binary);
     file.write((char*)&webp_data.bytes[0], webp_data.size);
     file.close();
-
+    WebPMuxDelete(mux);
     WebPDataClear(&webp_data);
 }
