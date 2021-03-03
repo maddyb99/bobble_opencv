@@ -15,7 +15,7 @@ int main(int argc, const char* argv[]) {
     webp_manipulator.DecodeWebP(input_file);
     int num_frames= webp_manipulator.SaveFrames("./temp/frames/");
     std::cout << num_frames << std::endl;
-    std::vector<std::thread> th,th2;
+    std::vector<std::thread> th;
     std::string file_path;
     for (int i=0; i < num_frames; i++) {
         file_path= "./temp/frames/" + std::to_string(i) + ".jpg";
@@ -23,11 +23,11 @@ int main(int argc, const char* argv[]) {
     }
     for (int i=0; i < num_frames; i++) {
         th[i].join();
-        th2.emplace_back(HeadApi::GetHead, &webp_manipulator, i);
+//        th2.emplace_back(HeadApi::GetHead, &webp_manipulator, i);
     }
     th.clear();
-    for (int i=0; i < num_frames; i++)
-        th2[i].join();
+//    for (int i=0; i < num_frames; i++)
+//        th2[i].join();
     webp_manipulator.EncodeWebP(output_file);
     return 0;
 }

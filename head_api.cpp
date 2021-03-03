@@ -10,6 +10,7 @@ void HeadApi::GetHeadUrl(const char* gender, std::string filePath, WebpManipulat
     CURL *curl;
         CURLcode res;
     std::string readBuffer;
+    long http_code = 0;
     curl = curl_easy_init();
     Json::Value jsonData;
     Json::Reader jsonReader;
@@ -31,11 +32,14 @@ void HeadApi::GetHeadUrl(const char* gender, std::string filePath, WebpManipulat
         curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, HeadApi::WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1);
+        curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
         res = curl_easy_perform(curl);
-        std::cout<<"Response: "<<num<<": "<<readBuffer<<std::endl;
+        std::cout<<"Response: "<<num<<": "<<http_code<<": "<<readBuffer<<std::endl;
         jsonReader.parse(readBuffer,jsonData);
-        std::cout<<"Json url: "<<jsonData["faceImageURL"].asString()<<std::endl;
+        std::cout << "Json url: " << jsonData["faceImageURL"].asString() << std::endl;
         webpManipulator->set_head_urls(jsonData["faceImageURL"].asString(), num);
+        HeadApi::GetHead(webpManipulator,num);
         curl_mime_free(mime);
     }
     curl_easy_cleanup(curl);
